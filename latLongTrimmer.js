@@ -1,23 +1,15 @@
 function startThis() {
-
-
 		$.ajax({	
 		    url: "http://keyword.cs.columbia.edu/data/chrisR/2013-06-14T00:02:52.249Z/2013-07-04T18:02:52.249Z",
 	       	dataType: 'json',
 		    success: function(data) {
-		    	latLongTrimmer(data); 		    
+		    	return latLongTrimmer(data); 		    
 		    }
   		});
 	}
 //Reads in CSV, has Lat-Longs and combines very similar addresses 
 function latLongTrimmer(allLines) {
-	
-	// const LAT_INDEX_NUM = 4;
-	// const LONG_INDEX_NUM = 5;
-	// const KEYWORDS_INDEX_NUM = 6;
-
-	const NUM_OF_DECIMALS = 7; 
-	
+	const NUM_OF_DECIMALS = 7; 	
 	const THE_KEYWORD_MAP = new KeyWordValues; 
 	
 	//square of Manhattan's coordinates 
@@ -26,9 +18,6 @@ function latLongTrimmer(allLines) {
 	const LONG_BOTTOM_LEFT = -74.03005242347717; 
 	const LONG_TOP_RIGHT = -73.86525750160217;  
 	
-
-	//Read through all of the lines of the Local File
-
 	//Grid of Buckets of Manhattan 
 	var latPosMap = new Map; //HashMap of {Latitudes, ListOfKeys}
 	var longPosMap = new Map; //HashMap of {Longitudes, ListOfKeys}
@@ -109,15 +98,15 @@ function latLongTrimmer(allLines) {
 		
 		}			
 	}
-	//Now recalibrate all items within Map, and write out the file... 
+	//Now recalibrate all items within Map, and plot each dot!
 	for(var i=0; i<latLongPairMap.size; i++) {
 			latLongPairMap.next();
-			// alert("stuck inc alibration");
-			//move through Hashmap of Sets. perform recalibrate on sets!
+
+			//finds max, avg, and sum of each set
 			var theSet = latLongPairMap.value(); 
 			theSet.recalibrate(THE_KEYWORD_MAP); 
 	}
-	// alert("it made it to the end!!"); 
+	return JSON.stringify(latLongPairMap); 
 }
 
 //Stolen from here to get set attributes: https://github.com/jau/SetJS/blob/master/src/Set.js
