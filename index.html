@@ -48,63 +48,20 @@
  		<script type = "text/javascript">
 			
 			//Create the Google Map...
-			const var LAT_INDEX = 0; 
-			const var LONG_INDEX = 1; 
+			const LAT_INDEX = 0; 
+			const LONG_INDEX = 1; 
 			var latlng = new google.maps.LatLng(40.700682761880564,-74.03005242347717); 
-			var map = new google.maps.Map(d3.select("#map").node(), myOptions); 
-
 			var myOptions = {
 				zoom: 10, 
 				center: latlng,
 				mapTypeId: google.maps.MapTypeId.ROADMAP
 			};
+
+			var map = new google.maps.Map(d3.select("#map").node(), myOptions); 
 			
-			//Loading JSON data from LatLongTrimmer 
-			var myJsonText = startThis();
-			d3.json(myJsonText, function(data) {
-				var overlay = new google.maps.OverlayView(); 
-
-				overlay.onAdd = function() {
-					var layer = d3.select(this.getPanese.overlayLayer).append("div")
-						.attr("class", "coordinates"); 
-
-					//Draw each marker as separate SVG element 
-					overlay.draw = function() {
-						var projection = this.getProjection(), 
-							padding = 10; 
-						var marker = layer.selectAll("svg")
-							.data(d3.entries(data))
-							.each(transform)
-						  .enter().append("svg:svg")
-							.each(transform)
-							.attr("class","marker"); 
-   					
-   						//creates a circle 
-   						//TODO: Here, I need to make size of SVG a function of a variable!!
-						marker.append("svg:circle")
-							.attr("r", 4.5)
-							.attr("cx", padding)
-							.attr("cy", padding); 
-
-						//Add a label
-						/*
-						marker.append("svg:text")
-							.attr("x", padding + 7)
-							.attr("y", padding)
-							.attr("dy", ".31em")
-							.text(function(d) { return d. //SOMEHOW SPECIFY LAT, LONG!!})
-						*/
-						function transform(d) {
-							d = new google.maps.LatLng(d.value[LAT_INDEX], d.value[LONG_INDEX]); 
-							d = projection.fromLatLngToDivPixel(d); 
-							return d3.select(this)
-								.style("left",(d.x-padding) + "px")
-								.style("top", (d.y - padding) + "px"); 
-						} //closes transform
-					}; //closes draw
-				};  //closes onAdd
-				overlay.setMap(map); 
-			});  //closes JSON
+			//Loading JSON data from LatLongTrimmer
+			//Within the success of the latLongTrimmer, draws the graph  
+			var myJsonText = startThis(map);
 			
  		</script>
  	</body>

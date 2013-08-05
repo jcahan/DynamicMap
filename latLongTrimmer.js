@@ -1,12 +1,67 @@
-function startThis() {
-		$.ajax({	
-		    url: "http://keyword.cs.columbia.edu/data/chrisR/2013-06-14T00:02:52.249Z/2013-07-04T18:02:52.249Z",
-	       	dataType: 'json',
+function startThis(map) {
+	$.ajax({	
+	    url: "www.keyword.cs.columbia.edu/data/chrisR/2013-06-14T00:02:52.249Z/2013-07-04T18:02:52.249Z",
+       	dataType: 'json',
 		    success: function(data) {
-		    	return latLongTrimmer(data); 		    
+		    	alert("entering the success"); 
+		    	var jsonTEXT = latLongTrimmer(data);
+
+		    	//Draw graph within ajax 
+		    	drawGraph(jsonTEXT, map);  		    
 		    }
-  		});
-	}
+	});
+}
+
+//Draws Graph
+function drawGraph(jsonTEXT) {
+	d3.json(myJsonText, function(data) {
+		alert("enters drawGraph!!"); 
+		var overlay = new google.maps.OverlayView(); 
+
+		overlay.onAdd = function() {
+			var layer = d3.select(this.getPanese.overlayLayer).append("div")
+				.attr("class", "coordinates"); 
+
+			//Draw each marker as separate SVG element 
+			overlay.draw = function() {
+				var projection = this.getProjection(), 
+					padding = 10; 
+				var marker = layer.selectAll("svg")
+					.data(d3.entries(data))
+					.each(transform)
+				  .enter().append("svg:svg")
+					.each(transform)
+					.attr("class","marker"); 
+				
+					//creates a circle 
+					//TODO: Here, I need to make size of SVG a function of a variable!!
+				marker.append("svg:circle")
+					.attr("r", 4.5)
+					.attr("cx", padding)
+					.attr("cy", padding); 
+
+				//Add a label
+				/*
+				marker.append("svg:text")
+					.attr("x", padding + 7)
+					.attr("y", padding)
+					.attr("dy", ".31em")
+					.text(function(d) { return d. //SOMEHOW SPECIFY LAT, LONG!!})
+				*/
+				function transform(d) {
+					//TODO: http://stackoverflow.com/questions/15671480/uncaught-rangeerror-maximum-call-stack-size-exceeded-google-maps-when-i-try-to
+					d = new google.maps.LatLng(d.value[LAT_INDEX], d.value[LONG_INDEX]); 
+					d = projection.fromLatLngToDivPixel(d); 
+					return d3.select(this)
+						.style("left",(d.x-padding) + "px")
+						.style("top", (d.y - padding) + "px"); 
+				} //closes transform
+			}; //closes draw
+		};  //closes onAdd
+		overlay.setMap(map); 
+	});  //closes JSON
+}
+
 //Reads in CSV, has Lat-Longs and combines very similar addresses 
 function latLongTrimmer(allLines) {
 	const NUM_OF_DECIMALS = 7; 	
@@ -97,7 +152,7 @@ function latLongTrimmer(allLines) {
 			}
 		
 		}			
-	}
+	}	
 	//Now recalibrate all items within Map, and plot each dot!
 	for(var i=0; i<latLongPairMap.size; i++) {
 			latLongPairMap.next();
