@@ -1,21 +1,24 @@
 function startThis(map) {
-	$.ajax({	
-	    url: "www.keyword.cs.columbia.edu/data/chrisR/2013-06-14T00:02:52.249Z/2013-07-04T18:02:52.249Z",
-       	dataType: 'json',
-		    success: function(data) {
-		    	alert("entering the success"); 
-		    	var jsonTEXT = latLongTrimmer(data);
+	var myNewObject = [{"lat": 40.8157246, "keywords": "laboratory testing", "long": -73.9601383, "time": "04:49PM Sunday, June 30, 2013"}, {"lat": 40.8157246, "keywords": "japanese restaurant", "long": -73.9601383, "time": "04:49PM Monday, June 30, 2013"}]; 
+	latLongTrimmer(myNewObject); 
+	
+	// $.ajax({	
+	//     url: "127.0.0.1/data/chrisR/2013-06-14T00:02:52.249Z/2013-07-04T18:02:52.249Z",
+ //       	dataType: 'json',
+	// 	    success: function(data) {
+	// 	    	alert("entering the success"); 
+	// 	    	var jsonTEXT = latLongTrimmer(data);
 
-		    	//Draw graph within ajax 
-		    	drawGraph(jsonTEXT, map);  		    
-		    }
-	});
+	// 	    	//Draw graph within ajax 
+	// 	    	drawGraph(jsonTEXT, map);  		    
+	// 	    }
+	// });
 }
 
 //Draws Graph
 function drawGraph(jsonTEXT) {
-	d3.json(myJsonText, function(data) {
-		alert("enters drawGraph!!"); 
+	d3.json(jsonTEXT, function(data) {
+		alert("enters drawGraph!!"); 		
 		var overlay = new google.maps.OverlayView(); 
 
 		overlay.onAdd = function() {
@@ -33,14 +36,14 @@ function drawGraph(jsonTEXT) {
 					.each(transform)
 					.attr("class","marker"); 
 				
-					//creates a circle 
-					//TODO: Here, I need to make size of SVG a function of a variable!!
+				//creates a circle 
+				//TODO: Here, I need to make size of SVG a function of a variable!!
 				marker.append("svg:circle")
 					.attr("r", 4.5)
 					.attr("cx", padding)
 					.attr("cy", padding); 
 
-				//Add a label
+				//Add a label				
 				/*
 				marker.append("svg:text")
 					.attr("x", padding + 7)
@@ -48,8 +51,8 @@ function drawGraph(jsonTEXT) {
 					.attr("dy", ".31em")
 					.text(function(d) { return d. //SOMEHOW SPECIFY LAT, LONG!!})
 				*/
+
 				function transform(d) {
-					//TODO: http://stackoverflow.com/questions/15671480/uncaught-rangeerror-maximum-call-stack-size-exceeded-google-maps-when-i-try-to
 					d = new google.maps.LatLng(d.value[LAT_INDEX], d.value[LONG_INDEX]); 
 					d = projection.fromLatLngToDivPixel(d); 
 					return d3.select(this)
@@ -59,6 +62,18 @@ function drawGraph(jsonTEXT) {
 			}; //closes draw
 		};  //closes onAdd
 		overlay.setMap(map); 
+
+		$('svg circle').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          /* 
+          var d = this.__data__, c = colors(d.i);
+          return 'Hi there! My color is <span style="color:' + c + '">' + c + '</span>'; 
+          */
+        }
+      });
+
 	});  //closes JSON
 }
 
@@ -79,9 +94,11 @@ function latLongTrimmer(allLines) {
 	var numOfLatLongPairs = 0; //used as Key
 
 	var latLongPairMap = new Map; //HashMap of {Lat-Long-Pair, KeyWords}
+	// alert("pre for loop");
+	// alert("length: " + allLines.length); 
 
 	for(var i=0; i<allLines.length; i++) {
-		
+		// alert("entered for loop"); 
 		//TODO: Need to look at the format of the line. Might need to use more accurate split function like: .split("\".*\",");
 		var aLine = allLines[i];
 		
@@ -89,7 +106,7 @@ function latLongTrimmer(allLines) {
 		var theLong = aLine["long"].toFixed(NUM_OF_DECIMALS);
 
 		if(!isNaN(theLat) && !isNaN(theLong)) {
-			var latList = latPosMap.get(theLat); //returns the list of latLongs
+			var latList = latPosMap.get(theLat); //returns the list of latLongs corresponding to a specific lat
 			var longList = longPosMap.get(theLong); //returns the list of latLongs
 
 			var latExists = false; 
@@ -99,7 +116,6 @@ function latLongTrimmer(allLines) {
 				latExists = true; 	
 			}
 			else {
-				// alert(theLat + " this is the lat"); 
 				//create new row in latPosMap
 				latPosMap.put(theLat, new Set());
 			}
@@ -123,30 +139,45 @@ function latLongTrimmer(allLines) {
 			//if both lat and long exist, then check keywords 
 			if(longExists&&latExists) {
 				var thePosition = latList.intersection(longList);
+				var thisPosition = thePosition.getElements()[0]; 
 				
 				//add keywords to Lat-Long
-				var updateLatLong = latLongPairMap.get(thePosition);
+				var updateLatLong = latLongPairMap.get(thisPosition);
 				updateLatLong.union(keyWordSet);
 				updateLatLong.incrementCheckin();
+
+				var tmpLatLongList = updateLatLong; 
+				latLongPairMap.remove(thisPosition); 
+				latLongPairMap.put(thisPosition, tmpLatLongList); 
 			}
 			
 			//create new lat-Long, Pair
 			else {
 				latLongPairMap.put(numOfLatLongPairs, keyWordSet); 
-		        // alert(latLongPairMap.get(numOfLatLongPairs));
-		        // alert(latLongPairMap.get(numOfLatLongPairs));
-
+		       
+		       	//then add the lat-long ID value
 				if(latExists) {
-					latList.add(numOfLatLongPairs);
+					//creates a set
+					var tmp = latPosMap.get(theLat); 
+					latPosMap.remove(theLat); 
+					tmp.add(numOfLatLongPairs);
+					// latPosMap.put(theLat,tmp); 
 				}
 				else {
-					latPosMap.put(theLat,numOfLatLongPairs);
+					var latSet = new Set(); 
+					latSet.add(numOfLatLongPairs); 
+					latPosMap.put(theLat,latSet);
 				}
 				if(longExists) {
-					longList.add(numOfLatLongPairs);	
+					// longList.append(numOfLatLongPairs);	
+					var longTmp = longPosMap.get(theLong); 
+					longPosMap.remove(theLong); 
+					longPosMap.put(theLong, longTmp.add(numOfLatLongPairs)); 
 				}
 				else {
-					longPosMap.put(theLong,numOfLatLongPairs);
+					var longSet = new Set(); 
+					longSet.add(numOfLatLongPairs); 
+					longPosMap.put(theLong,longSet);
 				}				
 				numOfLatLongPairs+=1; //Lat-Long Pair Identifier, used as key
 			}
@@ -156,9 +187,12 @@ function latLongTrimmer(allLines) {
 	//Now recalibrate all items within Map, and plot each dot!
 	for(var i=0; i<latLongPairMap.size; i++) {
 			latLongPairMap.next();
-
 			//finds max, avg, and sum of each set
 			var theSet = latLongPairMap.value(); 
+			alert("the set's size: " + theSet.size()); 
+			for (int z=0; z<theSet.size(); z++) {
+				alert(theSet.getElements()[z]); 
+			}
 			theSet.recalibrate(THE_KEYWORD_MAP); 
 	}
 	return JSON.stringify(latLongPairMap); 
@@ -193,14 +227,13 @@ Set.prototype.recalibrate = function(KEYWORD_MAP) {
 	//could do in add/union function instead...
 	for(var i=0; i<this.bag_.length; i++) {
 		var keywordValue = KEYWORD_MAP.get(this.bag_[i]);
-
 		this.sum += keywordValue;
 		if(this.max<keywordValue) {
 			this.max = keywordValue;
 		}
 	}
 	this.average = this.sum/this.bag_.length; 
-	// alert("my average is: " + this.average + "; and my sum is: " + this.sum + "; and my max is: " + this.max); 
+	alert("my average is: " + this.average + "; and my sum is: " + this.sum + "; and my max is: " + this.max); 
 }
 
 Set.prototype.search = function(e, start) {
@@ -296,7 +329,6 @@ Set.prototype.intersection = function(otherSet) {
 			result.bag_.push(this.bag_[i]);
 		}
 	}
-
 	return result;
 }
 
