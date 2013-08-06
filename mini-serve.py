@@ -6,7 +6,7 @@
 import os, json, urllib2, urllib
 import dateutil.parser
 import datetime as dt
-from flask import Flask
+from flask import Flask, render_template
 app = Flask(__name__)
 
 
@@ -79,6 +79,9 @@ def get_public_ajax(user_id, time1, time2):
     print user_id
     return get_data(user_id, time1, time2, True)
 
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 if __name__ == '__main__':
     # Bind to PORT if defined, otherwise default to 5000
