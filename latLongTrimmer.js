@@ -1,5 +1,5 @@
 function startThis(map) {
-	var myNewObject = [{"lat": 40.8157246, "keywords": "laboratory testing", "long": -73.9601383, "time": "04:49PM Sunday, June 30, 2013"}, {"lat": 40.8157246, "keywords": "japanese restaurant", "long": -73.9601383, "time": "04:49PM Monday, June 30, 2013"}]; 
+	var myNewObject = [{"lat": 40.8157246, "keywords": "laboratory testing", "long": -73.9601383, "time": "04:49PM Sunday, June 30, 2013"}, {"lat": 40.8155555, "keywords": "self storage", "long": -73.9655555, "time": "04:49PM Sunday, June 30, 2013"},{"lat": 40.8157246, "keywords": "japanese restaurant", "long": -73.9601383, "time": "04:49PM Monday, June 30, 2013"}]; 
 	latLongTrimmer(myNewObject); 
 	
 	// $.ajax({	
@@ -143,10 +143,11 @@ function latLongTrimmer(allLines) {
 				
 				//add keywords to Lat-Long
 				var updateLatLong = latLongPairMap.get(thisPosition);
-				updateLatLong.union(keyWordSet);
-				updateLatLong.incrementCheckin();
+				var theResult = updateLatLong.union(keyWordSet);
+				theResult.incrementCheckin();
+				alert("the result's size is: " + theResult.size()); 
 
-				var tmpLatLongList = updateLatLong; 
+				var tmpLatLongList = theResult; 
 				latLongPairMap.remove(thisPosition); 
 				latLongPairMap.put(thisPosition, tmpLatLongList); 
 			}
@@ -189,13 +190,12 @@ function latLongTrimmer(allLines) {
 			latLongPairMap.next();
 			//finds max, avg, and sum of each set
 			var theSet = latLongPairMap.value(); 
-			alert("the set's size: " + theSet.size()); 
-			for (int z=0; z<theSet.size(); z++) {
-				alert(theSet.getElements()[z]); 
-			}
+			// for (int z=0; z<theSet.size(); z++) {
+			// 	alert(theSet.getElements()[z]); 
+			// }
 			theSet.recalibrate(THE_KEYWORD_MAP); 
 	}
-	return JSON.stringify(latLongPairMap); 
+	// return JSON.stringify(latLongPairMap); 
 }
 
 //Stolen from here to get set attributes: https://github.com/jau/SetJS/blob/master/src/Set.js
@@ -226,6 +226,7 @@ Set.prototype.incrementCheckin = function() {
 Set.prototype.recalibrate = function(KEYWORD_MAP) {
 	//could do in add/union function instead...
 	for(var i=0; i<this.bag_.length; i++) {
+		alert("recalibrating at index: " + i); 
 		var keywordValue = KEYWORD_MAP.get(this.bag_[i]);
 		this.sum += keywordValue;
 		if(this.max<keywordValue) {
@@ -335,12 +336,13 @@ Set.prototype.intersection = function(otherSet) {
 Set.prototype.union = function(otherSet) {
 	var result = new Set();
 	if ((this.size() == 0) && (otherSet.size() == 0)) {return result;}
-
+	
 	var base, merged;
 	if (this.size() > otherSet.size()) {
 		base = this;
 		merged = otherSet;
-	} else {
+	} 
+	else {
 		base = otherSet;
 		merged = this;
 	}
@@ -351,6 +353,7 @@ Set.prototype.union = function(otherSet) {
 		result.add(merged.bag_[i]); // add() doesn't allow repetition
 	}
 
+	// alert("result bag's size should be true: " + result.size()); //should be of size 2!!
 	return result;
 }
 
