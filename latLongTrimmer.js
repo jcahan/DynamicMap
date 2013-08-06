@@ -1,6 +1,6 @@
 function startThis(map) {
 	var myNewObject = [{"lat": 40.8157246, "keywords": "laboratory testing", "long": -73.9601383, "time": "04:49PM Sunday, June 30, 2013"}, {"lat": 40.8155555, "keywords": "self storage", "long": -73.9655555, "time": "04:49PM Sunday, June 30, 2013"},{"lat": 40.8157246, "keywords": "japanese restaurant", "long": -73.9601383, "time": "04:49PM Monday, June 30, 2013"}]; 
-	latLongTrimmer(myNewObject); 
+	var theJSON = latLongTrimmer(myNewObject); 
 	
 	// $.ajax({	
 	//     url: "127.0.0.1/data/chrisR/2013-06-14T00:02:52.249Z/2013-07-04T18:02:52.249Z",
@@ -132,7 +132,6 @@ function latLongTrimmer(allLines) {
 			var kwArray = aLine["keywords"].split(","); 
 			
 			for(var x=0; x<kwArray.length; x++) {
-				// alert(kwArray[x] + " this is the keyword");
 				keyWordSet.add(kwArray[x]);
 			}
 
@@ -145,7 +144,8 @@ function latLongTrimmer(allLines) {
 				var updateLatLong = latLongPairMap.get(thisPosition);
 				var theResult = updateLatLong.union(keyWordSet);
 				theResult.incrementCheckin();
-				alert("the result's size is: " + theResult.size()); 
+				theResult.setLatAndLong(theLat, theLong); 
+				// alert("the result's size is: " + theResult.size()); 
 
 				var tmpLatLongList = theResult; 
 				latLongPairMap.remove(thisPosition); 
@@ -154,6 +154,9 @@ function latLongTrimmer(allLines) {
 			
 			//create new lat-Long, Pair
 			else {
+				// alert("this is the lat: " + theLat); 
+				// alert("this is the long: " + theLong); 
+				keyWordSet.setLatAndLong(theLat, theLong); 
 				latLongPairMap.put(numOfLatLongPairs, keyWordSet); 
 		       
 		       	//then add the lat-long ID value
@@ -195,7 +198,8 @@ function latLongTrimmer(allLines) {
 			// }
 			theSet.recalibrate(THE_KEYWORD_MAP); 
 	}
-	// return JSON.stringify(latLongPairMap); 
+	console.log(latLongPairMap); 
+	return JSON.stringify(latLongPairMap.listValues()); 
 }
 
 //Stolen from here to get set attributes: https://github.com/jau/SetJS/blob/master/src/Set.js
@@ -207,6 +211,8 @@ function Set(elements) {
 	this.sum = 0.00; 
 	this.average = 0.00; 
 	this.max = 0.00;  
+	this.lat = 0.00; 
+	this.theLong = 0.00; 
 
 	var i;
 
@@ -226,7 +232,7 @@ Set.prototype.incrementCheckin = function() {
 Set.prototype.recalibrate = function(KEYWORD_MAP) {
 	//could do in add/union function instead...
 	for(var i=0; i<this.bag_.length; i++) {
-		alert("recalibrating at index: " + i); 
+		// alert("recalibrating at index: " + i); 
 		var keywordValue = KEYWORD_MAP.get(this.bag_[i]);
 		this.sum += keywordValue;
 		if(this.max<keywordValue) {
@@ -235,6 +241,11 @@ Set.prototype.recalibrate = function(KEYWORD_MAP) {
 	}
 	this.average = this.sum/this.bag_.length; 
 	alert("my average is: " + this.average + "; and my sum is: " + this.sum + "; and my max is: " + this.max); 
+}
+
+Set.prototype.setLatAndLong = function(thisLat, thisLong) {
+	this.lat = thisLat;
+	this.theLong = thisLong;  
 }
 
 Set.prototype.search = function(e, start) {
