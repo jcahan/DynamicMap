@@ -1,9 +1,9 @@
 function startThis(map) {
 	var myNewObject = [{"lat": 40.8157246, "keywords": "laboratory testing", "long": -73.9601383, "time": "04:49PM Sunday, June 30, 2013"}, {"lat": 40.8155555, "keywords": "self storage", "long": -73.9655555, "time": "04:49PM Sunday, June 30, 2013"},{"lat": 40.8157246, "keywords": "japanese restaurant", "long": -73.9601383, "time": "04:49PM Monday, June 30, 2013"}]; 
 	var theJSON = latLongTrimmer(myNewObject); 
-	
+	drawGraph(theJSON, map);  		    
 	// $.ajax({	
-	//     url: "127.0.0.1/data/chrisR/2013-06-14T00:02:52.249Z/2013-07-04T18:02:52.249Z",
+	//     url: "http://127.0.0.1:80/data/chrisR/2013-06-14T00:02:52.249Z/2013-07-04T18:02:52.249Z",
  //       	dataType: 'json',
 	// 	    success: function(data) {
 	// 	    	alert("entering the success"); 
@@ -18,11 +18,13 @@ function startThis(map) {
 //Draws Graph
 function drawGraph(jsonTEXT) {
 	d3.json(jsonTEXT, function(data) {
-		alert("enters drawGraph!!"); 		
+		// alert("enters drawGraph!!"); 		//hits this successfully
+		
 		var overlay = new google.maps.OverlayView(); 
 
 		overlay.onAdd = function() {
-			var layer = d3.select(this.getPanese.overlayLayer).append("div")
+			alert("this here is the error"); 
+			var layer = d3.select(this.getPanes.overlayLayer).append("div")
 				.attr("class", "coordinates"); 
 
 			//Draw each marker as separate SVG element 
@@ -63,16 +65,16 @@ function drawGraph(jsonTEXT) {
 		};  //closes onAdd
 		overlay.setMap(map); 
 
-		$('svg circle').tipsy({ 
-        gravity: 'w', 
-        html: true, 
-        title: function() {
-          /* 
-          var d = this.__data__, c = colors(d.i);
-          return 'Hi there! My color is <span style="color:' + c + '">' + c + '</span>'; 
-          */
-        }
-      });
+		// $('svg circle').tipsy({ 
+  //       gravity: 'w', 
+  //       html: true, 
+  //       title: function() {
+           
+  //         var d = this.__data__, c = colors(d.i);
+  //         return 'Hi there! My color is <span style="color:' + c + '">' + c + '</span>'; 
+          
+  //       }
+  //     });
 
 	});  //closes JSON
 }
@@ -199,7 +201,9 @@ function latLongTrimmer(allLines) {
 			theSet.recalibrate(THE_KEYWORD_MAP); 
 	}
 	console.log(latLongPairMap); 
+	console.log(JSON.stringify(latLongPairMap.listValues())); 
 	return JSON.stringify(latLongPairMap.listValues()); 
+
 }
 
 //Stolen from here to get set attributes: https://github.com/jau/SetJS/blob/master/src/Set.js
@@ -240,7 +244,7 @@ Set.prototype.recalibrate = function(KEYWORD_MAP) {
 		}
 	}
 	this.average = this.sum/this.bag_.length; 
-	alert("my average is: " + this.average + "; and my sum is: " + this.sum + "; and my max is: " + this.max); 
+	// alert("my average is: " + this.average + "; and my sum is: " + this.sum + "; and my max is: " + this.max); 
 }
 
 Set.prototype.setLatAndLong = function(thisLat, thisLong) {
