@@ -1,45 +1,48 @@
 function startThis(map) {
-	var myNewObject = [{"lat": 40.8157246, "keywords": "laboratory testing", "long": -73.9601383, "time": "04:49PM Sunday, June 30, 2013"}, {"lat": 40.8155555, "keywords": "self storage", "long": -73.9655555, "time": "04:49PM Sunday, June 30, 2013"},{"lat": 40.8157246, "keywords": "japanese restaurant", "long": -73.9601383, "time": "04:49PM Monday, June 30, 2013"}]; 
+	// var myNewObject = [{"lat": 40.8157246, "keywords": "laboratory testing", "long": -73.9601383, "time": "04:49PM Sunday, June 30, 2013"}, {"lat": 40.8155555, "keywords": "self storage", "long": -73.9655555, "time": "04:49PM Sunday, June 30, 2013"},{"lat": 40.8157246, "keywords": "japanese restaurant", "long": -73.9601383, "time": "04:49PM Monday, June 30, 2013"}]; 
 	
-
-	var theJSON = latLongTrimmer(myNewObject); 
-	drawGraph(theJSON, map);  		    
+	// var theJSON = latLongTrimmer(myNewObject); 
+	var data = {"KMAE":[-120.12,36.98,"MADERA MUNICIPAL AIRPORT",[26,1,2,5,6,3,2,1,2,7,29,12,3]]}; 
+	drawGraph(data, map);  		    
 }
 
 //Draws Graph
-function drawGraph(jsonObject, map) {
+function drawGraph(data, map2) {
 	// data = JSON.parse(jsonObject); 
 	const LAT_INDEX = 0; 
-	const LONG_INDEX = 1; 
+	const LONG_INDEX = 1;
 
 	var overlay = new google.maps.OverlayView(); 
+	
 	overlay.onAdd = function() {
-		var layer = d3.select(this.getPanes.overlayLayer).append("div")
-			.attr("class", "coordinates"); 
-		
+		alert("enters here"); 
+		var layer = d3.select(map2.getPanes().overlayLayer).append("div")
+			.attr("class", "stations"); 
 		//Draw each marker as separate SVG element 
 		overlay.draw = function() {
 			var projection = this.getProjection(), 
 				padding = 10; 
-			console.log(jsonObject); 
+
 			var marker = layer.selectAll("svg")
-				.data(d3.entries(jsonObject))
+				.data(d3.entries(data))
 				.each(transform)
 			  .enter().append("svg:svg")
 				.each(transform)
 				.attr("class","marker"); 
 			
+			alert("the data is: " + JSON.stringify(data)); 
+
 			//creates a circle 
 			//TODO: Here, I need to make size of SVG a function of a variable!!
-
 			marker.append("svg:circle")
 				.attr("r", 4.5)
 				.attr("cx", padding)
 				.attr("cy", padding); 
 
+
 			function transform(d) {
-				alert("the d value: " + d.value[LAT_INDEX]); 
-				d = new google.maps.LatLng(d.value[LAT_INDEX], d.value[LONG_INDEX]); 
+				alert("the lat is: " + d.value[0] + " the long is: " + d.value[1]);
+				d = new google.maps.LatLng(d.value[1], d.value[0]); 
 				d = projection.fromLatLngToDivPixel(d); 
 				return d3.select(this)
 					.style("left",(d.x-padding) + "px")
@@ -47,7 +50,7 @@ function drawGraph(jsonObject, map) {
 			} //closes transform
 		}; //closes draw
 	};  //closes onAdd
-	overlay.setMap(map); 
+	overlay.setMap(map2); 
 }
 
 //Reads in CSV, has Lat-Longs and combines very similar addresses 

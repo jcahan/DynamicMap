@@ -25,22 +25,23 @@
  				margin: 0;
  				padding: 0;
  			}
- 			.coordinates, .coordinates svg {
+ 			.stations, .stations svg {
  				position: absolute;
  			}
 
- 			.coordinates svg {
+ 			.stations circle {
+ 				fill: black; 
+ 				stroke: black; 
+ 				stroke-width: 1.5px; 
+ 			}
+ 			
+ 			.stations svg {
  				width: 60px; 
  				height: 20px; 
  				padding-right: 100px;
  				font: 10px sans-serif;
  			}
 
- 			.coordinates circle {
- 				fill: black; 
- 				stroke: black; 
- 				stroke-width: 1.5px; 
- 			}
  		</style>
  		
 	</head>
@@ -50,15 +51,25 @@
  		<script type = "text/javascript">
 			$(document).ready(function(){
 				//Create the Google Map...
-				var latlng = new google.maps.LatLng(40.700682761880564,-74.03005242347717); 
+				var latlng = new google.maps.LatLng(40.700682761880564,-74.03005242347717);
+				var newLatLng = new google.maps.LatLng(36.98,-120.12); 
+				
+
 				var myOptions = {
 					zoom: 10, 
-					center: latlng,
+					center: newLatLng,
 					mapTypeId: google.maps.MapTypeId.ROADMAP
 				};
 
 				var map = new google.maps.Map(d3.select("#map").node(), myOptions); 
 				
+				var secondLatLong = new google.maps.LatLng(36.98,-120.12); 
+				var marker = new google.maps.Marker({
+				    position: secondLatLong, 
+				    map: map,
+				    title:"Hello World!"
+				});
+				marker.setMap(map); 
 				//Loading JSON data from LatLongTrimmer
 				//Within the success of the latLongTrimmer, draws the graph  
 				startThis(map);
