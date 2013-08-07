@@ -1,12 +1,14 @@
 function startThis(map) {
 	var myNewObject = [{"lat": 40.8157246, "keywords": "laboratory testing", "long": -73.9601383, "time": "04:49PM Sunday, June 30, 2013"}, {"lat": 40.8155555, "keywords": "self storage", "long": -73.9655555, "time": "04:49PM Sunday, June 30, 2013"},{"lat": 40.8157246, "keywords": "japanese restaurant", "long": -73.9601383, "time": "04:49PM Monday, June 30, 2013"}]; 
+	
+
 	var theJSON = latLongTrimmer(myNewObject); 
 	drawGraph(theJSON, map);  		    
 }
 
 //Draws Graph
-function drawGraph(jsonTEXT, map) {
-	data = JSON.parse(jsonTEXT); 
+function drawGraph(jsonObject, map) {
+	// data = JSON.parse(jsonObject); 
 	const LAT_INDEX = 0; 
 	const LONG_INDEX = 1; 
 
@@ -19,8 +21,9 @@ function drawGraph(jsonTEXT, map) {
 		overlay.draw = function() {
 			var projection = this.getProjection(), 
 				padding = 10; 
+			console.log(jsonObject); 
 			var marker = layer.selectAll("svg")
-				.data(d3.entries(data))
+				.data(d3.entries(jsonObject))
 				.each(transform)
 			  .enter().append("svg:svg")
 				.each(transform)
@@ -30,11 +33,12 @@ function drawGraph(jsonTEXT, map) {
 			//TODO: Here, I need to make size of SVG a function of a variable!!
 
 			marker.append("svg:circle")
-				.attr("r", 10.5)
+				.attr("r", 4.5)
 				.attr("cx", padding)
 				.attr("cy", padding); 
 
 			function transform(d) {
+				alert("the d value: " + d.value[LAT_INDEX]); 
 				d = new google.maps.LatLng(d.value[LAT_INDEX], d.value[LONG_INDEX]); 
 				d = projection.fromLatLngToDivPixel(d); 
 				return d3.select(this)
