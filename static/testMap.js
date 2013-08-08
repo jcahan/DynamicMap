@@ -41,7 +41,26 @@ function drawGraph(data, map2) {
 			//creates a circle 
 			//TODO: Here, I need to make size of SVG a function of a variable!!
 			marker.append("svg:circle")
-				.attr("r", 4.5)
+				.attr("r", function(d){
+					if(d.value['average']<1.00) {
+						return 2.0; 
+					}
+					else if(d.value['average']<2.00) {
+						return 3.0; 
+					}
+					else if(d.value['average']<4.00) {
+						return 4.0; 
+					}
+					else if(d.value['average']<5.00) {
+						return 4.8; 
+					}
+					else if(d.value['average']<8.00) {
+						return 5.0; 
+					}
+					else {
+						return 8.0; 
+					}
+				;})
 				.attr("cx", padding)
 				.attr("cy", padding); 
 
