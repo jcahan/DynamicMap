@@ -2,8 +2,18 @@ function startThis(map) {
 	// var myNewObject = [{"lat": 40.8157246, "keywords": "laboratory testing", "long": -73.9601383, "time": "04:49PM Sunday, June 30, 2013"}, {"lat": 40.8155555, "keywords": "self storage", "long": -73.9655555, "time": "04:49PM Sunday, June 30, 2013"},{"lat": 40.8157246, "keywords": "japanese restaurant", "long": -73.9601383, "time": "04:49PM Monday, June 30, 2013"}]; 
 	
 	// var theJSON = latLongTrimmer(myNewObject); 
-	var data = {"KMAE":[-120.12,36.98,"MADERA MUNICIPAL AIRPORT",[26,1,2,5,6,3,2,1,2,7,29,12,3]]}; 
-	drawGraph(data, map);  		    
+	// var data = {"KMAE":[-120.12,36.98,"MADERA MUNICIPAL AIRPORT",[26,1,2,5,6,3,2,1,2,7,29,12,3]]}; 
+	$.ajax({	
+	    url: "http://127.0.0.1:80/data/chrisR/2013-06-14T00:02:52.249Z/2013-07-04T18:02:52.249Z",
+       	dataType: 'json',
+		    success: function(data) {
+		    	alert("entering the success"); 
+		    	var jsonTEXT = latLongTrimmer(data);
+
+		    	//Draw graph within ajax 
+		    	drawGraph(jsonTEXT, map);  		    
+		    }
+	});
 }
 
 //Draws Graph
@@ -15,8 +25,10 @@ function drawGraph(data, map2) {
 	var overlay = new google.maps.OverlayView(); 
 	
 	overlay.onAdd = function() {
-		alert("enters here"); 
-		var layer = d3.select(map2.getPanes().overlayLayer).append("div")
+		// alert("lat: " + JSON.stringify(data[0]['lat']));
+		// alert("long: " + JSON.stringify(data[0]['theLong']));  
+
+		var layer = d3.select(this.getPanes().overlayLayer).append("div")
 			.attr("class", "stations"); 
 		//Draw each marker as separate SVG element 
 		overlay.draw = function() {
@@ -30,7 +42,7 @@ function drawGraph(data, map2) {
 				.each(transform)
 				.attr("class","marker"); 
 			
-			alert("the data is: " + JSON.stringify(data)); 
+			// alert("the data is: " + JSON.stringify(data)); 
 
 			//creates a circle 
 			//TODO: Here, I need to make size of SVG a function of a variable!!
@@ -38,11 +50,12 @@ function drawGraph(data, map2) {
 				.attr("r", 4.5)
 				.attr("cx", padding)
 				.attr("cy", padding); 
-
+			console.log("enters"); 
 
 			function transform(d) {
-				alert("the lat is: " + d.value[0] + " the long is: " + d.value[1]);
-				d = new google.maps.LatLng(d.value[1], d.value[0]); 
+				// console.log("enters"); 
+				alert("the lat is: " + d.value['lat'] + " the long is: " + d.value['theLong']);
+				d = new google.maps.LatLng(d.value['lat'], d.value['theLong']); 
 				d = projection.fromLatLngToDivPixel(d); 
 				return d3.select(this)
 					.style("left",(d.x-padding) + "px")
@@ -167,7 +180,7 @@ function latLongTrimmer(allLines) {
 	}
 	console.log(latLongPairMap); 
 	console.log(JSON.stringify(latLongPairMap.listValues())); 
-	return JSON.stringify(latLongPairMap.listValues()); 
+	return latLongPairMap.listValues(); 
 
 }
 
